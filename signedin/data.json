@@ -1,16 +1,26 @@
 {
     "data": [
         {
-            "name": "Example Package",
-            "icon": "example.png",
+            "name": "Chromium",
+            "icon": "/icons/chromium.png",
             "description": "An example package.",
-            "installCode": "install.txt"
+            "tool": false,
+            "code": {
+                "install": "/scripts/chromium/installer.sh",
+                "uninstall": "/scripts/chromium/uninstaller.sh",
+                "launch": "/scripts/chromium/launcher.sh"
+            }
         },
         {
-            "name": "Another Package",
-            "icon": "another.png",
-            "description": "Another example.",
-            "installCode": "other.txt"
+            "name": "Firefox",
+            "icon": "/icons/firefox.png",
+            "description": "An example package.",
+            "tool": true,
+            "code": {
+                "install": "/scripts/firefox/installer.sh",
+                "uninstall": "/scripts/firefox/uninstaller.sh",
+                "launch": "/scripts/firefox/launcher.sh"
+            }
         }
     ]
 }

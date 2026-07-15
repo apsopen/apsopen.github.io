@@ -10,43 +10,19 @@ async function loadPackages() {
     const response = await fetch("data.json");
     const json = await response.json();
 
-    const container = document.getElementById("packages");
+    const packages = document.getElementById("packages");
+    const tools = document.getElementById("tools");
 
 
     json.data.forEach(item => {
 
-        const card = document.createElement("div");
-        card.className = "package-card";
+        const card = createCard(item);
 
-
-        card.innerHTML = `
-            <img 
-                class="package-icon"
-                src="/icon/${item.icon}"
-                alt="${item.name}"
-            >
-
-            <div class="package-content">
-                <h2>${item.name}</h2>
-
-                <p>
-                    ${item.description}
-                </p>
-            </div>
-
-            <button class="install-button">
-                Install Package
-            </button>
-        `;
-
-
-        card.querySelector(".install-button")
-            .addEventListener("click", () => {
-                installPackage(item.installCode);
-            });
-
-
-        container.appendChild(card);
+        if (item.tool === true) {
+            tools.appendChild(card);
+        } else {
+            packages.appendChild(card);
+        }
 
     });
 
@@ -54,22 +30,89 @@ async function loadPackages() {
 
 
 
-async function installPackage(codeFile) {
+function createCard(item) {
 
-    const confirmed = confirm(
-        "Are you sure you want to install this package?"
-    );
+    const card = document.createElement("div");
+    card.className = "package-card";
 
 
-    if (!confirmed) {
-        return;
+    let buttons = "";
+
+    Object.entries(item.code).forEach(([action, script]) => {
+
+        buttons += `
+            <button
+                class="install-button action-button"
+                data-action="${action}"
+                data-script="${script}"
+            >
+                ${action.charAt(0).toUpperCase() + action.slice(1)}
+            </button>
+        `;
+
+    });
+
+
+    card.innerHTML = `
+        <img
+            class="package-icon"
+            src="${item.icon}"
+            alt="${item.name}"
+        >
+
+        <div class="package-content">
+            <h2>${item.name}</h2>
+            <p>${item.description}</p>
+        </div>
+
+        <div class="package-actions">
+            ${buttons}
+        </div>
+    `;
+
+
+    card.querySelectorAll(".action-button").forEach(button => {
+
+        button.onclick = () => {
+
+            runScript(
+                button.dataset.script,
+                button.dataset.action,
+                item.name,
+                item.tool
+            );
+
+        };
+
+    });
+
+
+    return card;
+
+}
+
+
+
+async function runScript(scriptPath, action, packageName, isTool) {
+
+    if (!isTool) {
+
+        const confirmed = confirm(
+            `Are you sure you want to ${action} ${packageName}?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
     }
 
 
-    const response = await fetch(`/code/${codeFile}`);
+    const response = await fetch(scriptPath);
+
 
     if (!response.ok) {
-        alert("Could not find install file.");
+        alert("Could not load script.");
         return;
     }
 
@@ -81,17 +124,24 @@ async function installPackage(codeFile) {
 
 }
 
-function login() {
-    const password = document.getElementById("toolbarPassword").value;
 
-    if (!password) {
+
+function login() {
+
+    const loginPassword = document.getElementById("toolbarPassword").value;
+
+
+    if (!loginPassword) {
         alert("Enter your password.");
         return;
     }
 
-    sessionStorage.setItem("clientPassword", password);
+
+    sessionStorage.setItem("clientPassword", loginPassword);
+
 
     window.location.href = "/signedin";
+
 }
 
 
@@ -102,7 +152,7 @@ function sendfile(password, contents) {
     console.log("User password:");
     console.log(password);
 
-    console.log("Install file contents:");
+    console.log("Script contents:");
     console.log(contents);
 
 }
