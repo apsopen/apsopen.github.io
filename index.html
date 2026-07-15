@@ -1,83 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Install Client</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
 <div class="container">
 
     <h1>Install the Client</h1>
-    <p class="subtitle">Follow these 3 steps to connect your device.</p>
+    <p class="subtitle">
+        Follow these steps to connect your device.
+    </p>
 
 
+    <!-- STEP 1 -->
     <section class="card">
+
         <div class="step-title">
             <span>1</span>
             <h2>Open Terminal</h2>
         </div>
 
-        <img class="app-icon" src="terminal-icon.png" alt="Terminal app icon">
+        <img 
+            class="app-icon" 
+            src="terminal-icon.png" 
+            alt="macOS Terminal icon"
+        >
 
         <p>
-            Open Terminal on your Mac. The easiest way is to use Spotlight:
+            First, open the Terminal application on your Mac.
+            You can find it quickly using Spotlight:
         </p>
 
         <ol>
-            <li>Press <b>Command (⌘) + Space</b></li>
-            <li>Type <b>Terminal</b></li>
-            <li>Press <b>Enter</b> to open it</li>
+            <li>Press <strong>⌘ Command + Space</strong></li>
+            <li>Type <strong>Terminal</strong></li>
+            <li>Press <strong>Enter</strong></li>
         </ol>
 
         <p>
-            Keep Terminal open. You will paste a command into it in the next step.
+            Leave Terminal open. You will use it in the next steps
+            to install the client.
         </p>
+
     </section>
 
 
+
+    <!-- STEP 2 -->
     <section class="card">
+
         <div class="step-title">
             <span>2</span>
-            <h2>Create your password</h2>
+            <h2>Create Your Password</h2>
         </div>
 
+
         <p>
-            Choose a password. This will be used to identify your client.
+            Choose a password for your client. Keep this safe —
+            you will use it to sign in later.
         </p>
 
-        <input id="password" type="password" placeholder="Create password">
+
+        <input
+            id="password"
+            type="password"
+            placeholder="Enter your password"
+            oninput="generateCommand()"
+        >
 
 
-        <h3>Your installation command</h3>
+        <h3>Installation Command</h3>
+
 
         <div class="code-box">
+
+            <button class="copy-button" onclick="copyCommand()">
+                Copy
+            </button>
+
             <code id="command">
-curl https://example.com/install.sh | bash -s -- YOUR_PASSWORD
+        curl https://example.com/install.sh | bash -s -- YOUR_PASSWORD
             </code>
+
         </div>
 
-        <button onclick="generateCommand()">
-            Generate command
-        </button>
 
         <p>
-            Copy the command above and paste it into Terminal.
+            Copy the generated command and paste it into Terminal.
         </p>
+
     </section>
 
 
+
+    <!-- STEP 3 -->
     <section class="card">
+
         <div class="step-title">
             <span>3</span>
-            <h2>Run the installer</h2>
+            <h2>Run the Installer</h2>
         </div>
 
+
         <p>
-            Press <b>Enter</b> in Terminal after pasting the command.
-            Wait until the installation finishes.
+            After pasting the command into Terminal, press
+            <strong>Enter</strong>.
         </p>
 
         <p>
-            When everything is complete, click below.
+            Wait until the installation finishes completely.
+            Once it is done, click the button below.
         </p>
+
 
         <button onclick="finishSetup()">
             I'm finished!
         </button>
+
     </section>
 
 
 </div>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>

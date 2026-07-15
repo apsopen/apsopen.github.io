@@ -1,15 +1,25 @@
 function generateCommand() {
     const password = document.getElementById("password").value;
 
-    if (!password) {
-        alert("Enter a password first.");
-        return;
-    }
+    const command =
+`curl https://example.com/install.sh | bash -s -- ${password || "YOUR_PASSWORD"}`;
 
-    const code =
-`curl https://example.com/install.sh | bash -s -- ${password}`;
+    document.getElementById("command").textContent = command;
+}
 
-    document.getElementById("command").textContent = code;
+
+function copyCommand() {
+    const command = document.getElementById("command").textContent;
+
+    navigator.clipboard.writeText(command);
+
+    const button = document.querySelector(".copy-button");
+
+    button.textContent = "Copied!";
+
+    setTimeout(() => {
+        button.textContent = "Copy";
+    }, 1500);
 }
 
 
