@@ -1,15 +1,27 @@
-const loginForm = document.getElementById("loginForm");
+function generateCommand() {
+    const password = document.getElementById("password").value;
 
-loginForm.addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    const password = document.getElementById("password").value.trim();
-
-    if (password.length === 0) {
-        alert("Please enter your password.");
+    if (!password) {
+        alert("Enter a password first.");
         return;
     }
 
-    // Replace with real authentication later.
+    const code =
+`curl https://example.com/install.sh | bash -s -- ${password}`;
+
+    document.getElementById("command").textContent = code;
+}
+
+
+function finishSetup() {
+    const password = document.getElementById("password").value;
+
+    if (!password) {
+        alert("Enter your password first.");
+        return;
+    }
+
+    sessionStorage.setItem("clientPassword", password);
+
     window.location.href = "/signedin";
-});
+}
