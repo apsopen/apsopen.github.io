@@ -1,0 +1,16 @@
+{
+    "data": [
+        {
+            "name": "Example Package",
+            "icon": "example.png",
+            "description": "An example package.",
+            "installCode": "install.txt"
+        },
+        {
+            "name": "Another Package",
+            "icon": "another.png",
+            "description": "Another example.",
+            "installCode": "other.txt"
+        }
+    ]
+}

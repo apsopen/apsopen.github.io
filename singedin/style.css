@@ -1,0 +1,75 @@
+body {
+    margin:0;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+    font-family:Inter,Arial,sans-serif;
+}
+
+
+.container {
+    width:min(900px,90%);
+    margin:auto;
+    padding:50px 0;
+}
+
+
+h1 {
+    text-align:center;
+    margin-bottom:40px;
+}
+
+
+.package-card {
+    display:flex;
+    align-items:center;
+    gap:25px;
+
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.15);
+
+    border-radius:20px;
+    padding:25px;
+    margin-bottom:25px;
+}
+
+
+.package-icon {
+    width:80px;
+    height:80px;
+    object-fit:contain;
+}
+
+
+.package-content {
+    flex:1;
+}
+
+
+.package-content h2 {
+    margin:0 0 8px;
+}
+
+
+.package-content p {
+    color:#cbd5e1;
+    margin:0;
+}
+
+
+.install-button {
+    background:#2563eb;
+    color:white;
+
+    border:none;
+    border-radius:12px;
+
+    padding:12px 20px;
+    cursor:pointer;
+
+    font-size:15px;
+}
+
+
+.install-button:hover {
+    background:#1d4ed8;
+}
