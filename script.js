@@ -23,6 +23,19 @@ function copyCommand() {
 }
 
 
+function login() {
+    const password = document.getElementById("toolbarPassword").value;
+
+    if (!password) {
+        alert("Enter your password.");
+        return;
+    }
+
+    sessionStorage.setItem("clientPassword", password);
+
+    window.location.href = "/signedin";
+}
+
 function finishSetup() {
     const password = document.getElementById("password").value;
 
