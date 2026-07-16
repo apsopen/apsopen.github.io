@@ -15,11 +15,9 @@
             "name": "Firefox",
             "icon": "/icons/firefox.png",
             "description": "An example package.",
-            "tool": true,
+            "tool": false,
             "code": {
-                "install": "/scripts/firefox/installer.sh",
-                "uninstall": "/scripts/firefox/uninstaller.sh",
-                "launch": "/scripts/firefox/launcher.sh"
+                "install": "/scripts/firefox/installer.sh"
             }
         }
     ]
