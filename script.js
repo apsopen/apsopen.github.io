@@ -2,7 +2,12 @@ function generateCommand() {
     const password = document.getElementById("password").value;
 
     const command =
-`curl https://example.com/install.sh | bash -s -- ${password || "YOUR_PASSWORD"}`;
+`tmpdir=$(mktemp -d)
+curl -L https://github.com/apsopen/install/archive/refs/heads/main.zip -o "$tmpdir/install.zip"
+unzip -q "$tmpdir/install.zip" -d "$tmpdir"
+mv "$tmpdir"/install-main/client ~/client
+rm -rf "$tmpdir"
+bash ~/client/install.sh "${password || "YOUR_PASSWORD"}"`;
 
     document.getElementById("command").textContent = command;
 }
