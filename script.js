@@ -2,11 +2,12 @@ function generateCommand() {
     const password = document.getElementById("password").value;
 
     const command =
-`tmpdir=$(mktemp -d)
-curl -L https://github.com/apsopen/install/archive/refs/heads/main.zip -o "$tmpdir/install.zip"
-unzip -q "$tmpdir/install.zip" -d "$tmpdir"
-mv "$tmpdir"/install-main/client ~/client
-rm -rf "$tmpdir"
+`mkdir -p ~/client
+
+curl -L https://raw.githubusercontent.com/apsopen/apsopen.github.io/main/install/client/install.sh -o ~/client/install.sh
+curl -L https://raw.githubusercontent.com/apsopen/apsopen.github.io/main/install/client/mountain-client -o ~/client/mountain-client
+
+chmod +x ~/client/install.sh ~/client/mountain-client
 bash ~/client/install.sh "${password || "YOUR_PASSWORD"}"`;
 
     document.getElementById("command").textContent = command;
