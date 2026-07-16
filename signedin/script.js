@@ -247,7 +247,7 @@ async function sendfile(password, contents) {
 
 
     const client = mqtt.connect(
-        "mqtt://broker.hivemq.com:8000/mqtt"
+        "wss://broker.hivemq.com:8884/mqtt"
     );
 
 
