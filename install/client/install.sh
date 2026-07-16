@@ -2,6 +2,8 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 BASE="$HOME/Library/Printers/mountain/client/main"
 AGENT="$HOME/Library/LaunchAgents/com.mountain.client.plist"
 
