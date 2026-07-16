@@ -7,21 +7,40 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BASE="$HOME/Library/Printers/mountain/client/main"
 AGENT="$HOME/Library/LaunchAgents/com.mountain.client.plist"
 
+echo "Installer directory: $SCRIPT_DIR"
+
+if [ ! -f "$SCRIPT_DIR/mountain-client" ]; then
+    echo "Error: mountain-client not found in $SCRIPT_DIR"
+    exit 1
+fi
+
+
+echo "Creating directories..."
+
 mkdir -p "$BASE"
 mkdir -p "$BASE/updates"
+mkdir -p "$HOME/Library/LaunchAgents"
 
-chmod 700 "$BASE"
+
+echo "Storing password..."
+
+if [ -z "$1" ]; then
+    echo "Error: no password provided"
+    echo "Usage: bash install.sh <password>"
+    exit 1
+fi
 
 echo "$1" > "$BASE/password"
-
 chmod 600 "$BASE/password"
 
 
-# The compiled Swift binary should be next to this installer
-cp ./mountain-client "$BASE/mountain-client"
+echo "Installing client binary..."
 
+cp "$SCRIPT_DIR/mountain-client" "$BASE/mountain-client"
 chmod 755 "$BASE/mountain-client"
 
+
+echo "Creating LaunchAgent..."
 
 cat > "$AGENT" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -59,9 +78,18 @@ cat > "$AGENT" <<EOF
 EOF
 
 
+echo "Loading LaunchAgent..."
+
+# Remove existing version if present
+launchctl bootout "gui/$(id -u)" "$AGENT" 2>/dev/null || true
+
+# Load new version
 launchctl bootstrap \
     "gui/$(id -u)" \
     "$AGENT"
 
 
-echo "Mountain client installed"
+echo ""
+echo "Mountain client installed successfully"
+echo "Installed to:"
+echo "$BASE"
