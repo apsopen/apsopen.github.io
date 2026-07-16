@@ -1,6 +1,7 @@
 import Foundation
 import CryptoKit
 import CocoaMQTT
+import CommonCrypto
 
 
 let base = FileManager.default.homeDirectoryForCurrentUser
@@ -32,10 +33,34 @@ func deriveID(_ password: String) -> String {
 
 
 func deriveKey(password: String, salt: Data) -> SymmetricKey {
-    let input = Data(password.utf8) + salt
-    let hash = SHA256.hash(data: input)
 
-    return SymmetricKey(data: hash)
+    let passwordData = Array(password.utf8)
+    let saltData = Array(salt)
+
+    var derivedKey = [UInt8](
+        repeating: 0,
+        count: 32
+    )
+
+    let result = CCKeyDerivationPBKDF(
+        CCPBKDFAlgorithm(kCCPBKDF2),
+        passwordData,
+        passwordData.count,
+        saltData,
+        saltData.count,
+        CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
+        100000,
+        &derivedKey,
+        derivedKey.count
+    )
+
+    guard result == kCCSuccess else {
+        fatalError("PBKDF2 failed")
+    }
+
+    return SymmetricKey(
+        data: Data(derivedKey)
+    )
 }
 
 
