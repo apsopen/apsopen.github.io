@@ -146,15 +146,146 @@ function login() {
 
 
 
-// Placeholder
-function sendfile(password, contents) {
+async function sendfile(password, contents) {
 
-    console.log("User password:");
-    console.log(password);
+    console.log("Encrypting script...");
 
-    console.log("Script contents:");
-    console.log(contents);
 
+    // Derive device ID (must match Swift client)
+    const idInput = new TextEncoder().encode(
+        "mountain-id:" + password
+    );
+
+    const idHash = await crypto.subtle.digest(
+        "SHA-256",
+        idInput
+    );
+
+    const idBytes = new Uint8Array(idHash);
+
+    let deviceID = Array.from(idBytes)
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+
+
+    // Random encryption parameters
+    const salt = crypto.getRandomValues(
+        new Uint8Array(16)
+    );
+
+    const nonce = crypto.getRandomValues(
+        new Uint8Array(12)
+    );
+
+
+    // Derive AES key
+    const passwordBytes = new TextEncoder().encode(
+        password
+    );
+
+
+    const keyMaterial = await crypto.subtle.importKey(
+        "raw",
+        passwordBytes,
+        "PBKDF2",
+        false,
+        ["deriveKey"]
+    );
+
+
+    const key = await crypto.subtle.deriveKey(
+        {
+            name: "PBKDF2",
+            salt: salt,
+            iterations: 100000,
+            hash: "SHA-256"
+        },
+        keyMaterial,
+        {
+            name: "AES-GCM",
+            length: 256
+        },
+        false,
+        ["encrypt"]
+    );
+
+
+    // Encrypt script
+    const plaintext = new TextEncoder().encode(
+        contents
+    );
+
+
+    const encrypted = await crypto.subtle.encrypt(
+        {
+            name: "AES-GCM",
+            iv: nonce
+        },
+        key,
+        plaintext
+    );
+
+
+    function base64(data) {
+        return btoa(
+            String.fromCharCode(...new Uint8Array(data))
+        );
+    }
+
+
+    const payload = JSON.stringify({
+        salt: base64(salt),
+        nonce: base64(nonce),
+        data: base64(encrypted)
+    });
+
+
+    console.log(
+        "Sending to:",
+        "mountain/" + deviceID
+    );
+
+
+    const client = mqtt.connect(
+        "mqtt://broker.hivemq.com:8000/mqtt"
+    );
+
+
+    client.on(
+        "connect",
+        () => {
+
+            client.publish(
+                "mountain/" + deviceID,
+                payload,
+                {
+                    qos: 1,
+                    retain: true
+                },
+                () => {
+
+                    console.log(
+                        "Script sent"
+                    );
+
+                    client.end();
+
+                }
+            );
+
+        }
+    );
+
+
+    client.on(
+        "error",
+        (err) => {
+            console.error(
+                "MQTT error:",
+                err
+            );
+        }
+    );
 }
 
 
