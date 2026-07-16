@@ -19,6 +19,15 @@
             "code": {
                 "install": "/scripts/firefox/installer.sh"
             }
+        },
+        {
+            "name": "sfasfsd",
+            "icon": "/icons/firefox.png",
+            "description": "An example package.",
+            "tool": true,
+            "code": {
+                "install": "/scripts/firefox/installer.sh"
+            }
         }
     ]
 }
