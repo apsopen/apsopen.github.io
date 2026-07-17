@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 APP="$HOME/Library/Printers/Chromium.app"
 
 echo "Removing Chromium..."
@@ -13,6 +11,6 @@ pkill -f "Chromium.app" 2>/dev/null || true
 rm -rf "$APP"
 rm -rf "$HOME/Library/Printers/.homebrew"
 rm -rf "$HOME/Library/Printers/Cask"
-rm -rf "$HOME/Library/Caches/Homebrew
+rm -rf "$HOME/Library/Caches/Homebrew"
 
 echo "Chromium removed."
