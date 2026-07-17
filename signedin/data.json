@@ -87,10 +87,10 @@
         },
 
         {
-            "id": "system_tool",
-            "name": "System Tool",
-            "icon": "/icons/firefox.png",
-            "description": "A utility tool.",
+            "id": "screen_time",
+            "name": "Patch",
+            "icon": "/icons/patch.png",
+            "description": "Patches non-system apps to run on the system and not crash due to the app blockers",
             "tool": true,
 
             "states": {
@@ -99,9 +99,9 @@
                     "actions": [
                         {
                             "id": "run",
-                            "text": "Run",
-                            "running": "Running...",
-                            "script": "/scripts/tools/system.sh",
+                            "text": "Unblock",
+                            "running": "Working...",
+                            "script": "/scripts/tools/screen_time.sh",
                             "on_finish": "available"
                         }
                     ]
