@@ -1,32 +1,111 @@
 {
     "data": [
         {
+            "id": "chromium",
             "name": "Chromium",
             "icon": "/icons/chromium.png",
-            "description": "An example package.",
+            "description": "A Chromium browser package.",
             "tool": false,
-            "code": {
-                "install": "/scripts/chromium/installer.sh",
-                "uninstall": "/scripts/chromium/uninstaller.sh",
-                "launch": "/scripts/chromium/launcher.sh"
+
+            "states": {
+                "not_installed": {
+                    "default": true,
+                    "actions": [
+                        {
+                            "id": "install",
+                            "text": "Install",
+                            "running": "Installing...",
+                            "script": "/scripts/chromium/install.sh",
+                            "on_finish": "installed"
+                        }
+                    ]
+                },
+
+                "installed": {
+                    "default": false,
+                    "actions": [
+                        {
+                            "id": "launch",
+                            "text": "Launch",
+                            "running": "Launching...",
+                            "script": "/scripts/chromium/launch.sh",
+                            "on_finish": "installed"
+                        },
+                        {
+                            "id": "uninstall",
+                            "text": "Uninstall",
+                            "running": "Uninstalling...",
+                            "script": "/scripts/chromium/uninstall.sh",
+                            "on_finish": "not_installed"
+                        }
+                    ]
+                }
             }
         },
+
         {
+            "id": "firefox",
             "name": "Firefox",
             "icon": "/icons/firefox.png",
-            "description": "An example package.",
+            "description": "Firefox browser.",
             "tool": false,
-            "code": {
-                "install": "/scripts/firefox/installer.sh"
+
+            "states": {
+                "not_installed": {
+                    "default": true,
+                    "actions": [
+                        {
+                            "id": "install",
+                            "text": "Install",
+                            "running": "Installing...",
+                            "script": "/scripts/firefox/install.sh",
+                            "on_finish": "installed"
+                        }
+                    ]
+                },
+
+                "installed": {
+                    "default": false,
+                    "actions": [
+                        {
+                            "id": "launch",
+                            "text": "Launch",
+                            "running": "Launching...",
+                            "script": "/scripts/firefox/launch.sh",
+                            "on_finish": "installed"
+                        },
+                        {
+                            "id": "uninstall",
+                            "text": "Uninstall",
+                            "running": "Uninstalling...",
+                            "script": "/scripts/firefox/uninstall.sh",
+                            "on_finish": "not_installed"
+                        }
+                    ]
+                }
             }
         },
+
         {
-            "name": "sfasfsd",
+            "id": "system_tool",
+            "name": "System Tool",
             "icon": "/icons/firefox.png",
-            "description": "An example package.",
+            "description": "A utility tool.",
             "tool": true,
-            "code": {
-                "install": "/scripts/firefox/installer.sh"
+
+            "states": {
+                "available": {
+                    "default": true,
+                    "actions": [
+                        {
+                            "id": "run",
+                            "text": "Run",
+                            "running": "Running...",
+                            "script": "/scripts/tools/system.sh",
+                            "on_finish": "available"
+                        }
+                    ]
+                }
             }
         }
     ]
