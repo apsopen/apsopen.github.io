@@ -91,6 +91,21 @@ function createCard(item) {
 
 }
 
+async function getVersion() {
+    const response = await fetch("/version.txt");
+
+
+    if (!response.ok) {
+        alert("Could not load script.");
+        return;
+    }
+
+
+    var contents = await response.text();
+
+    document.getElementById("site-name").textContent = contents;
+}
+
 
 
 async function runScript(scriptPath, action, packageName, isTool) {
@@ -452,3 +467,4 @@ function updateStatus() {
 
 loadPackages();
 startHeartbeatMonitor();
+getVersion();

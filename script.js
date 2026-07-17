@@ -54,3 +54,20 @@ function finishSetup() {
 
     window.location.href = "/signedin";
 }
+
+async function getVersion() {
+    const response = await fetch("/version.txt");
+
+
+    if (!response.ok) {
+        alert("Could not load script.");
+        return;
+    }
+
+
+    var contents = await response.text();
+
+    document.getElementById("site-name").textContent = contents;
+}
+
+getVersion()
