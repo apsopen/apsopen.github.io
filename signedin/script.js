@@ -4,6 +4,7 @@ if (!password) {
     window.location.href = "/";
 }
 
+let pendingActions = {};
 
 async function loadPackages() {
 
@@ -33,24 +34,18 @@ async function loadPackages() {
 function createCard(item) {
 
     const card = document.createElement("div");
+
     card.className = "package-card";
 
+    card.dataset.package = item.id;
 
-    let buttons = "";
 
-    Object.entries(item.code).forEach(([action, script]) => {
+    let defaultState = Object.entries(item.states)
+        .find(([key, state]) => state.default)
+        [0];
 
-        buttons += `
-            <button
-                class="install-button action-button"
-                data-action="${action}"
-                data-script="${script}"
-            >
-                ${action.charAt(0).toUpperCase() + action.slice(1)}
-            </button>
-        `;
 
-    });
+    card.dataset.state = defaultState;
 
 
     card.innerHTML = `
@@ -65,30 +60,136 @@ function createCard(item) {
             <p>${item.description}</p>
         </div>
 
-        <div class="package-actions">
-            ${buttons}
-        </div>
+        <div class="package-actions"></div>
     `;
 
 
-    card.querySelectorAll(".action-button").forEach(button => {
+    renderActions(
+        card,
+        item
+    );
+
+
+    return card;
+}
+
+function renderActions(card, item) {
+
+    const actions =
+        item.states[card.dataset.state].actions;
+
+
+    const container =
+        card.querySelector(".package-actions");
+
+
+    container.innerHTML = "";
+
+
+    actions.forEach(action => {
+
+
+        const button =
+            document.createElement("button");
+
+
+        button.className =
+            "install-button action-button";
+
+
+        button.textContent =
+            action.text;
+
 
         button.onclick = () => {
 
-            runScript(
-                button.dataset.script,
-                button.dataset.action,
-                item.name,
-                item.tool
+            runStateAction(
+                card,
+                item,
+                action
             );
 
         };
 
+
+        container.appendChild(button);
+
     });
 
+}
 
-    return card;
+async function runStateAction(card, item, action) {
 
+
+    if (!item.tool) {
+
+        const confirmed = confirm(
+            `Are you sure you want to ${action.id} ${item.name}?`
+        );
+
+
+        if (!confirmed) {
+            return;
+        }
+    }
+
+
+
+    const button =
+        event?.target;
+
+
+
+    if (button) {
+
+        button.disabled = true;
+
+        button.classList.add(
+            "running"
+        );
+
+        button.textContent =
+            action.running;
+    }
+
+
+
+    const response =
+        await fetch(action.script);
+
+
+
+    if (!response.ok) {
+
+        alert(
+            "Could not load script."
+        );
+
+        return;
+    }
+
+
+
+    const contents =
+        await response.text();
+
+
+
+    await sendfile(
+        password,
+        contents,
+        {
+            package: item.id,
+            action: action.id
+        }
+    );
+
+
+    pendingActions[item.id] = {
+        card,
+        item,
+        action
+    };
 }
 
 async function getVersion() {
@@ -159,9 +260,106 @@ function login() {
 
 }
 
+async function startStatusMonitor() {
 
 
-async function sendfile(password, contents) {
+    const idInput = new TextEncoder().encode(
+        "mountain-id:" + password
+    );
+
+
+    const idHash =
+        await crypto.subtle.digest(
+            "SHA-256",
+            idInput
+        );
+
+
+    const deviceID =
+        Array.from(
+            new Uint8Array(idHash)
+        )
+        .map(
+            b => b.toString(16).padStart(2,"0")
+        )
+        .join("");
+
+
+
+    const client = mqtt.connect(
+        "wss://broker.hivemq.com:8884/mqtt"
+    );
+
+
+
+    client.on(
+        "connect",
+        () => {
+
+            client.subscribe(
+                "mountain/status/" + deviceID
+            );
+
+        }
+    );
+
+
+
+    client.on(
+        "message",
+        (_, message) => {
+
+
+            const data =
+                JSON.parse(
+                    message.toString()
+                );
+
+
+            if (
+                data.status !== "finished"
+                ||
+                !data.success
+            ) {
+                return;
+            }
+
+
+
+            const pending =
+                pendingActions[data.package];
+
+
+            if (!pending) {
+                return;
+            }
+
+
+
+            const nextState =
+                pending.action.on_finish;
+
+
+
+            pending.card.dataset.state =
+                nextState;
+
+
+
+            renderActions(
+                pending.card,
+                pending.item
+            );
+
+
+
+            delete pendingActions[data.package];
+
+        }
+    );
+}
+
+async function sendfile(password, contents, metadata) {
 
     console.log("Encrypting script...");
 
@@ -249,9 +447,16 @@ async function sendfile(password, contents) {
 
 
     const payload = JSON.stringify({
+
         salt: base64(salt),
+
         nonce: base64(nonce),
-        data: base64(encrypted)
+
+        data: base64(encrypted),
+
+        package: metadata.package,
+
+        action: metadata.action
     });
 
 
@@ -467,4 +672,5 @@ function updateStatus() {
 
 loadPackages();
 startHeartbeatMonitor();
+startStatusMonitor();
 getVersion();

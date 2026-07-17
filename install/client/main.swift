@@ -126,9 +126,9 @@ func decrypt(
 
 
 func executeScript(
-    _ data: Data
+    _ data: Data,
+    completion: @escaping (Bool) -> Void
 ) {
-
 
     try? FileManager.default.createDirectory(
         at: updatesDirectory,
@@ -137,7 +137,9 @@ func executeScript(
 
 
     let script = updatesDirectory
-        .appendingPathComponent("update.sh")
+        .appendingPathComponent(
+            UUID().uuidString + ".sh"
+        )
 
 
     do {
@@ -175,6 +177,18 @@ func executeScript(
         ]
 
 
+        process.terminationHandler = { process in
+
+            completion(
+                process.terminationStatus == 0
+            )
+
+            try? FileManager.default.removeItem(
+                at: script
+            )
+        }
+
+
         try process.run()
 
 
@@ -183,6 +197,8 @@ func executeScript(
         print(
             "Script execution failed: \(error)"
         )
+
+        completion(false)
     }
 }
 
@@ -237,6 +253,8 @@ class MQTTManager: NSObject, CocoaMQTTDelegate {
         // CocoaMQTT automatic reconnect
         mqtt.autoReconnect = true
         mqtt.autoReconnectTimeInterval = 5
+
+        mqtt.cleanSession = true
 
 
         connect()
@@ -337,6 +355,57 @@ class MQTTManager: NSObject, CocoaMQTTDelegate {
         )
     }
 
+    private func sendStatus(
+        package: String,
+        action: String,
+        success: Bool
+    ) {
+
+        guard mqtt.connState == .connected else {
+            print("Cannot send status, MQTT offline")
+            return
+        }
+
+        let payload: [String: Any] = [
+
+            "package": package,
+
+            "action": action,
+
+            "status": "finished",
+
+            "success": success,
+
+            "time":
+                ISO8601DateFormatter()
+                .string(from: Date())
+        ]
+
+
+
+        guard
+            let data = try? JSONSerialization.data(
+                withJSONObject: payload
+            ),
+
+            let json = String(
+                data: data,
+                encoding: .utf8
+            )
+
+        else {
+            return
+        }
+
+
+
+        mqtt.publish(
+            "mountain/status/\(deviceID)",
+            withString: json,
+            qos: .qos1
+        )
+    }
+
 
 
 
@@ -415,15 +484,14 @@ class MQTTManager: NSObject, CocoaMQTTDelegate {
 
 
         guard
-            let json = try? JSONSerialization.jsonObject(
-                with: Data(string.utf8)
-            ) as? [String:String]
+            let json =
+                try? JSONSerialization.jsonObject(
+                    with: Data(string.utf8)
+                ) as? [String:String]
 
         else {
 
-            print(
-                "Invalid JSON"
-            )
+            print("Invalid JSON")
 
             return
         }
@@ -435,6 +503,9 @@ class MQTTManager: NSObject, CocoaMQTTDelegate {
             let saltString = json["salt"],
             let nonceString = json["nonce"],
             let dataString = json["data"],
+
+            let package = json["package"],
+            let action = json["action"],
 
 
             let salt = Data(
@@ -452,7 +523,7 @@ class MQTTManager: NSObject, CocoaMQTTDelegate {
         else {
 
             print(
-                "Invalid encrypted payload"
+                "Invalid payload"
             )
 
             return
@@ -472,11 +543,26 @@ class MQTTManager: NSObject, CocoaMQTTDelegate {
 
 
             print(
-                "Script verified"
+                "Running \(package) \(action)"
             )
 
 
-            executeScript(script)
+            executeScript(
+                script
+            ) { [weak self] success in
+
+
+                print(
+                    "Finished \(package) \(action): \(success)"
+                )
+
+
+                self?.sendStatus(
+                    package: package,
+                    action: action,
+                    success: success
+                )
+            }
 
 
 
@@ -485,6 +571,13 @@ class MQTTManager: NSObject, CocoaMQTTDelegate {
 
             print(
                 "Decryption failed: \(error)"
+            )
+
+
+            sendStatus(
+                package: package,
+                action: action,
+                success: false
             )
         }
     }
