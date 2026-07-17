@@ -27,3 +27,4 @@ mkdir -p "$HOME/Desktop/Launch $APP_NAME.app/Contents/MacOS"
 cat > "$HOME/Desktop/Launch $APP_NAME.app/Contents/MacOS/Launch $APP_NAME" <<EOF
 open "$NEWPATH"
 EOF
+chmod +x "$HOME/Desktop/Launch $APP_NAME.app/Contents/MacOS/Launch $APP_NAME"
