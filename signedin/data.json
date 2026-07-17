@@ -99,7 +99,7 @@
                     "actions": [
                         {
                             "id": "run",
-                            "text": "Unblock",
+                            "text": "Patch",
                             "running": "Working...",
                             "script": "/scripts/tools/screen_time.sh",
                             "on_finish": "available"
