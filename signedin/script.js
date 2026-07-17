@@ -288,6 +288,167 @@ async function sendfile(password, contents) {
     );
 }
 
+let heartbeatInterval = 15000; // must match Swift heartbeat interval
+let lastHeartbeat = null;
+
+
+async function startHeartbeatMonitor() {
+
+
+    const idInput = new TextEncoder().encode(
+        "mountain-id:" + password
+    );
+
+
+    const idHash = await crypto.subtle.digest(
+        "SHA-256",
+        idInput
+    );
+
+
+    const idBytes = new Uint8Array(idHash);
+
+
+    const deviceID = Array.from(idBytes)
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+
+
+
+    const client = mqtt.connect(
+        "wss://broker.hivemq.com:8884/mqtt"
+    );
+
+
+    client.on(
+        "connect",
+        () => {
+
+            console.log(
+                "Listening for heartbeat:",
+                deviceID
+            );
+
+
+            client.subscribe(
+                "mountain/heartbeat/" + deviceID
+            );
+
+        }
+    );
+
+
+
+    client.on(
+        "message",
+        (topic, message) => {
+
+
+            try {
+
+                const data = JSON.parse(
+                    message.toString()
+                );
+
+
+                lastHeartbeat = new Date(
+                    data.time
+                );
+
+
+                updateStatus();
+
+
+            } catch(e) {
+
+                console.error(
+                    "Invalid heartbeat",
+                    e
+                );
+
+            }
+
+        }
+    );
+
+
+
+    // Check timeout continuously
+    setInterval(
+        updateStatus,
+        5000
+    );
+}
+
+
+
+function updateStatus() {
+
+
+    const container = document.getElementById(
+        "connection-status"
+    );
+
+    const text = document.getElementById(
+        "status-text"
+    );
+
+    const time = document.getElementById(
+        "status-time"
+    );
+
+
+    if (!lastHeartbeat) {
+
+        container.className =
+            "status disconnected";
+
+        text.textContent =
+            "Disconnected";
+
+        time.textContent =
+            "";
+
+        return;
+    }
+
+
+
+    const age =
+        Date.now() - lastHeartbeat.getTime();
+
+
+
+    if (age > heartbeatInterval * 2) {
+
+
+        container.className =
+            "status disconnected";
+
+
+        text.textContent =
+            "Disconnected";
+
+
+    } else {
+
+
+        container.className =
+            "status live";
+
+
+        text.textContent =
+            "Live";
+
+    }
+
+
+
+    time.textContent =
+        "Last seen " +
+        lastHeartbeat.toLocaleTimeString();
+}
 
 
 loadPackages();
+startHeartbeatMonitor();

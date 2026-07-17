@@ -140,3 +140,25 @@ h1 {
 
     font-size: 14px;
 }
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+#status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: gray;
+}
+
+.status.live #status-dot {
+    background: green;
+}
+
+.status.disconnected #status-dot {
+    background: red;
+}
