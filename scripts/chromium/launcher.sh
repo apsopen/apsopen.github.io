@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP="$HOME/.local/chromium/Chromium.app"
+APP="$HOME/Library/Printers/Chromium.app"
 
 if [ ! -d "$APP" ]; then
     echo "Chromium is not installed."
