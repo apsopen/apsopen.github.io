@@ -270,7 +270,7 @@ class MQTTManager: NSObject, CocoaMQTTDelegate {
 
 
         heartbeatTimer = Timer.scheduledTimer(
-            withTimeInterval: 15,
+            withTimeInterval: 3,
             repeats: true
         ) { [weak self] _ in
 

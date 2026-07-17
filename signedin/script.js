@@ -288,7 +288,7 @@ async function sendfile(password, contents) {
     );
 }
 
-let heartbeatInterval = 15000; // must match Swift heartbeat interval
+let heartbeatInterval = 3000; // must match Swift heartbeat interval
 let lastHeartbeat = null;
 
 
