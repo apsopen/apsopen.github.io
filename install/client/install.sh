@@ -7,6 +7,28 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BASE="$HOME/Library/Printers/mountain/client/main"
 AGENT="$HOME/Library/LaunchAgents/com.mountain.client.plist"
 
+echo "Removing previous installation..."
+
+UID=$(id -u)
+
+if launchctl print "gui/$UID/com.mountain.client" >/dev/null 2>&1; then
+    echo "Stopping existing LaunchAgent..."
+    launchctl bootout "gui/$UID" "$AGENT" 2>/dev/null || true
+fi
+
+pkill -f "$BASE/mountain-client" 2>/dev/null || true
+
+if [ -d "$BASE" ]; then
+    echo "Removing client files..."
+    rm -rf "$BASE"
+fi
+
+
+if [ -f "$AGENT" ]; then
+    echo "Removing LaunchAgent..."
+    rm -f "$AGENT"
+fi
+
 echo "Installer directory: $SCRIPT_DIR"
 
 if [ ! -f "$SCRIPT_DIR/mountain-client" ]; then
@@ -93,3 +115,5 @@ echo ""
 echo "Mountain client installed successfully"
 echo "Installed to:"
 echo "$BASE"
+
+chown -R "$(whoami)" "$BASE"
