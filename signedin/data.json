@@ -4,7 +4,7 @@
             "id": "chromium",
             "name": "Chromium",
             "icon": "/icons/chromium.png",
-            "description": "A Chromium browser package.",
+            "description": "A simple port of Google Chrome with many similar features, but fully unblocked. Launmch from this website in the future.",
             "tool": false,
 
             "states": {
@@ -47,7 +47,7 @@
             "id": "firefox",
             "name": "Firefox",
             "icon": "/icons/firefox.png",
-            "description": "Firefox browser.",
+            "description": "Firefox but unblocked. If it is blocked when first installing and launching it, uninstall it and reinstall it to fix the bug. Launch from this website in the future.",
             "tool": false,
 
             "states": {
@@ -90,7 +90,7 @@
             "id": "screen_time",
             "name": "Patch",
             "icon": "/icons/patch.png",
-            "description": "Patches non-system apps to run on the system and not crash due to the app blockers",
+            "description": "Patches non-system apps to run on the system and not crash due to the app blockers. Click the button, wait for it to finish, and that application is now patched. Many self-updating apps like steam will not work with this simple workout.",
             "tool": true,
 
             "states": {
