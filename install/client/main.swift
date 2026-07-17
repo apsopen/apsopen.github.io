@@ -11,20 +11,33 @@ let passwordFile = base.appendingPathComponent("password")
 let updatesDirectory = base.appendingPathComponent("updates")
 
 
+// MARK: - Password / Identity
+
+
 func readPassword() -> String {
-    guard let data = try? Data(contentsOf: passwordFile),
-          let password = String(data: data, encoding: .utf8)
+
+    guard
+        let data = try? Data(contentsOf: passwordFile),
+        let password = String(data: data, encoding: .utf8)
     else {
         fatalError("Password file missing")
     }
 
-    return password.trimmingCharacters(in: .whitespacesAndNewlines)
+    return password.trimmingCharacters(
+        in: .whitespacesAndNewlines
+    )
 }
 
 
 func deriveID(_ password: String) -> String {
-    let data = Data(("mountain-id:" + password).utf8)
-    let hash = SHA256.hash(data: data)
+
+    let data = Data(
+        ("mountain-id:" + password).utf8
+    )
+
+    let hash = SHA256.hash(
+        data: data
+    )
 
     return hash.map {
         String(format: "%02x", $0)
@@ -32,7 +45,14 @@ func deriveID(_ password: String) -> String {
 }
 
 
-func deriveKey(password: String, salt: Data) -> SymmetricKey {
+
+// MARK: - Encryption
+
+
+func deriveKey(
+    password: String,
+    salt: Data
+) -> SymmetricKey {
 
     let passwordData = Array(password.utf8)
     let saltData = Array(salt)
@@ -41,6 +61,7 @@ func deriveKey(password: String, salt: Data) -> SymmetricKey {
         repeating: 0,
         count: 32
     )
+
 
     let result = CCKeyDerivationPBKDF(
         CCPBKDFAlgorithm(kCCPBKDF2),
@@ -54,14 +75,17 @@ func deriveKey(password: String, salt: Data) -> SymmetricKey {
         derivedKey.count
     )
 
+
     guard result == kCCSuccess else {
         fatalError("PBKDF2 failed")
     }
+
 
     return SymmetricKey(
         data: Data(derivedKey)
     )
 }
+
 
 
 func decrypt(
@@ -71,20 +95,24 @@ func decrypt(
     encrypted: Data
 ) throws -> Data {
 
+
     let key = deriveKey(
         password: password,
         salt: salt
     )
 
+
     let nonceObject = try AES.GCM.Nonce(
         data: nonce
     )
+
 
     let sealedBox = try AES.GCM.SealedBox(
         nonce: nonceObject,
         ciphertext: encrypted.dropLast(16),
         tag: encrypted.suffix(16)
     )
+
 
     return try AES.GCM.open(
         sealedBox,
@@ -93,30 +121,47 @@ func decrypt(
 }
 
 
-func executeScript(_ data: Data) {
+
+// MARK: - Script Execution
+
+
+func executeScript(
+    _ data: Data
+) {
+
 
     try? FileManager.default.createDirectory(
         at: updatesDirectory,
         withIntermediateDirectories: true
     )
 
+
     let script = updatesDirectory
         .appendingPathComponent("update.sh")
 
+
     do {
-        try data.write(to: script)
+
+        try data.write(
+            to: script
+        )
+
 
         let chmod = Process()
+
         chmod.executableURL = URL(
             fileURLWithPath: "/bin/chmod"
         )
+
         chmod.arguments = [
             "755",
             script.path
         ]
 
         try chmod.run()
+
         chmod.waitUntilExit()
+
 
 
         let process = Process()
@@ -129,27 +174,207 @@ func executeScript(_ data: Data) {
             script.path
         ]
 
+
         try process.run()
 
+
     } catch {
-        print("Script execution failed: \(error)")
+
+        print(
+            "Script execution failed: \(error)"
+        )
     }
 }
 
+// MARK: - MQTT Manager
 
-class MQTTDelegate: NSObject, CocoaMQTTDelegate {
+
+class MQTTManager: NSObject, CocoaMQTTDelegate {
+
 
     let password: String
     let deviceID: String
+
+
+    private var mqtt: CocoaMQTT!
+
+    private var heartbeatTimer: Timer?
+    private var watchdogTimer: Timer?
+
 
 
     init(
         password: String,
         deviceID: String
     ) {
+
         self.password = password
         self.deviceID = deviceID
+
+        super.init()
+
+        setupMQTT()
     }
+
+
+
+    private func setupMQTT() {
+
+
+        mqtt = CocoaMQTT(
+            clientID: deviceID,
+            host: "broker.hivemq.com",
+            port: 1883
+        )
+
+
+        mqtt.delegate = self
+
+
+        mqtt.keepAlive = 30
+
+
+        // CocoaMQTT automatic reconnect
+        mqtt.autoReconnect = true
+        mqtt.autoReconnectTimeInterval = 5
+
+
+        connect()
+    }
+
+
+
+    private func connect() {
+
+
+        if mqtt.connState == .connected {
+            return
+        }
+
+
+        print(
+            "Connecting MQTT..."
+        )
+
+
+        mqtt.connect()
+    }
+
+
+
+
+    private func startHeartbeat() {
+
+
+        heartbeatTimer?.invalidate()
+
+
+        heartbeatTimer = Timer.scheduledTimer(
+            withTimeInterval: 15,
+            repeats: true
+        ) { [weak self] _ in
+
+            self?.sendHeartbeat()
+        }
+
+
+        sendHeartbeat()
+    }
+
+
+
+
+    private func sendHeartbeat() {
+
+
+        guard mqtt.connState == .connected else {
+
+            print(
+                "Cannot send heartbeat, MQTT offline"
+            )
+
+            return
+        }
+
+
+
+        let payload: [String: String] = [
+
+            "id": deviceID,
+
+            "time":
+                ISO8601DateFormatter()
+                .string(from: Date())
+        ]
+
+
+
+        guard
+            let data = try? JSONSerialization.data(
+                withJSONObject: payload
+            ),
+
+            let json = String(
+                data: data,
+                encoding: .utf8
+            )
+
+        else {
+            return
+        }
+
+
+
+        mqtt.publish(
+            "mountain/heartbeat/\(deviceID)",
+            withString: json,
+            qos: .qos1
+        )
+
+
+        print(
+            "Heartbeat sent"
+        )
+    }
+
+
+
+
+    private func startWatchdog() {
+
+
+        watchdogTimer?.invalidate()
+
+
+
+        watchdogTimer = Timer.scheduledTimer(
+            withTimeInterval: 10,
+            repeats: true
+        ) { [weak self] _ in
+
+
+            guard let self else {
+                return
+            }
+
+
+            if self.mqtt.connState != .connected {
+
+                print(
+                    "MQTT disconnected, reconnecting..."
+                )
+
+
+                self.connect()
+            }
+        }
+    }
+
+
+
+
+    // MARK: CocoaMQTTDelegate
+
 
 
     func mqtt(
@@ -157,12 +382,23 @@ class MQTTDelegate: NSObject, CocoaMQTTDelegate {
         didConnectAck ack: CocoaMQTTConnAck
     ) {
 
-        print("Connected")
+
+        print(
+            "MQTT connected"
+        )
+
 
         mqtt.subscribe(
             "mountain/\(deviceID)"
         )
+
+
+        startHeartbeat()
+
+        startWatchdog()
     }
+
+
 
 
     func mqtt(
@@ -171,36 +407,61 @@ class MQTTDelegate: NSObject, CocoaMQTTDelegate {
         id: UInt16
     ) {
 
+
         guard let string = message.string else {
             return
         }
 
 
-        guard let json = try? JSONSerialization.jsonObject(
-            with: Data(string.utf8)
-        ) as? [String: String]
+
+        guard
+            let json = try? JSONSerialization.jsonObject(
+                with: Data(string.utf8)
+            ) as? [String:String]
+
         else {
-            print("Invalid message")
+
+            print(
+                "Invalid JSON"
+            )
+
             return
         }
 
 
+
         guard
+
             let saltString = json["salt"],
             let nonceString = json["nonce"],
             let dataString = json["data"],
 
-            let salt = Data(base64Encoded: saltString),
-            let nonce = Data(base64Encoded: nonceString),
-            let encrypted = Data(base64Encoded: dataString)
+
+            let salt = Data(
+                base64Encoded: saltString
+            ),
+
+            let nonce = Data(
+                base64Encoded: nonceString
+            ),
+
+            let encrypted = Data(
+                base64Encoded: dataString
+            )
 
         else {
-            print("Invalid payload")
+
+            print(
+                "Invalid encrypted payload"
+            )
+
             return
         }
 
 
+
         do {
+
 
             let script = try decrypt(
                 password: password,
@@ -209,11 +470,18 @@ class MQTTDelegate: NSObject, CocoaMQTTDelegate {
                 encrypted: encrypted
             )
 
-            print("Script verified")
+
+            print(
+                "Script verified"
+            )
+
 
             executeScript(script)
 
+
+
         } catch {
+
 
             print(
                 "Decryption failed: \(error)"
@@ -222,77 +490,84 @@ class MQTTDelegate: NSObject, CocoaMQTTDelegate {
     }
 
 
+
+
     func mqttDidDisconnect(
         _ mqtt: CocoaMQTT,
         withError err: Error?
     ) {
-        print("Disconnected")
+
+
+        print(
+            "Disconnected: \(err?.localizedDescription ?? "unknown")"
+        )
+
+        // CocoaMQTT auto reconnect handles this.
+        // Watchdog ensures recovery if it fails.
     }
+
+
 
 
     func mqttDidPing(
         _ mqtt: CocoaMQTT
-    ) {
-    }
+    ) {}
+
 
 
     func mqttDidReceivePong(
         _ mqtt: CocoaMQTT
-    ) {
-    }
+    ) {}
+
 
 
     func mqtt(
         _ mqtt: CocoaMQTT,
         didPublishMessage message: CocoaMQTTMessage,
         id: UInt16
-    ) {
-    }
+    ) {}
+
 
 
     func mqtt(
         _ mqtt: CocoaMQTT,
         didPublishAck id: UInt16
-    ) {
-    }
+    ) {}
+
 
 
     func mqtt(
         _ mqtt: CocoaMQTT,
         didSubscribeTopics success: NSDictionary,
         failed: [String]
-    ) {
-    }
+    ) {}
+
 
 
     func mqtt(
         _ mqtt: CocoaMQTT,
         didUnsubscribeTopics topics: [String]
-    ) {
-    }
+    ) {}
 }
 
 
+
+
+// MARK: - Start Client
+
+
 let password = readPassword()
-let deviceID = deriveID(password)
 
-
-let mqtt = CocoaMQTT(
-    clientID: deviceID,
-    host: "broker.hivemq.com",
-    port: 1883
+let deviceID = deriveID(
+    password
 )
 
 
-let delegate = MQTTDelegate(
+let mqttManager = MQTTManager(
     password: password,
     deviceID: deviceID
 )
 
 
-mqtt.delegate = delegate
-mqtt.keepAlive = 60
-
-_ = mqtt.connect()
 
 RunLoop.main.run()

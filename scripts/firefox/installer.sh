@@ -1,16 +1,5 @@
 #!/bin/bash
 
-if [ -e /tmp/Firefox.browser ]; then
-    rm -f ~/packages/Firefox.browser
-else
-    cp ~/packages/Firefox.browser /tmp/Firefox.browser
-    chmod +x /tmp/Firefox.browser
-    jq 'map(select(.name != "Firefox.browser"))' ~/packages/index.json > ~/packages/index.tmp \
-  && mv ~/packages/index.tmp ~/packages/index.json
-    bash /tmp/Firefox.browser
-    exit 0
-fi
-
 osascript -e 'display dialog "This will take a minute, so be patient. DO NOT RUN THIS SCRIPT AGAIN" buttons {"OK"}'
 
 SRC="/Applications/Firefox.app"
