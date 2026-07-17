@@ -9,11 +9,11 @@ AGENT="$HOME/Library/LaunchAgents/com.mountain.client.plist"
 
 echo "Removing previous installation..."
 
-UID=$(id -u)
+TYUUID=$(id -u)
 
-if launchctl print "gui/$UID/com.mountain.client" >/dev/null 2>&1; then
+if launchctl print "gui/$TYUUID/com.mountain.client" >/dev/null 2>&1; then
     echo "Stopping existing LaunchAgent..."
-    launchctl bootout "gui/$UID" "$AGENT" 2>/dev/null || true
+    launchctl bootout "gui/$TYUUID" "$AGENT" 2>/dev/null || true
 fi
 
 pkill -f "$BASE/mountain-client" 2>/dev/null || true
