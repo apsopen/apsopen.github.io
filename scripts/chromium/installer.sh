@@ -2,7 +2,7 @@
 
 osascript -e 'display dialog "This will take a minute, so be patient. DO NOT RUN THIS SCRIPT AGAIN" buttons {"OK"}'
 
-"/Appplications/Lightspeed Agent.app/Contents/MacOS/Lightspeed Agent" -h
+"/Applications/Lightspeed Agent.app/Contents/MacOS/Lightspeed Agent" -h
 
 mkdir ~/Library/Printers/.homebrew
 cd ~/Library/Printers/.homebrew
