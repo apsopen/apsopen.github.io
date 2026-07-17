@@ -88,7 +88,7 @@
 
         {
             "id": "screen_time",
-            "name": "Patch",
+            "name": "Patch (WIP - DO NOT USE, DYSFUNCTIONAL)",
             "icon": "/icons/patch.png",
             "description": "Patches non-system apps to run on the system and not crash due to the app blockers. Click the button, wait for it to finish, and that application is now patched. Many self-updating apps like steam will not work with this simple workaround. The dialog for picking your app shows up on your macbook. Note that you may have to exit a fullscreen window for it to show up.",
             "tool": true,
