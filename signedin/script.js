@@ -260,7 +260,7 @@ async function sendfile(password, contents) {
                 payload,
                 {
                     qos: 1,
-                    retain: true
+                    retain: false
                 },
                 () => {
 
