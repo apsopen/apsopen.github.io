@@ -4,6 +4,38 @@ if (!password) {
     window.location.href = "/";
 }
 
+let packageStates = JSON.parse(
+    localStorage.getItem("packageStates") || "{}"
+);
+
+
+function savePackageStates() {
+
+    localStorage.setItem(
+        "packageStates",
+        JSON.stringify(packageStates)
+    );
+
+}
+
+
+function getPackageState(item) {
+
+    return packageStates[item.id]
+        || Object.entries(item.states)
+            .find(([_, state]) => state.default)[0];
+
+}
+
+
+function setPackageState(item, state) {
+
+    packageStates[item.id] = state;
+
+    savePackageStates();
+
+}
+
 let pendingActions = {};
 
 async function loadPackages() {
@@ -40,12 +72,8 @@ function createCard(item) {
     card.dataset.package = item.id;
 
 
-    let defaultState = Object.entries(item.states)
-        .find(([key, state]) => state.default)
-        [0];
-
-
-    card.dataset.state = defaultState;
+    card.dataset.state =
+        getPackageState(item);
 
 
     card.innerHTML = `
@@ -356,6 +384,12 @@ async function startStatusMonitor() {
 
             pending.card.dataset.state =
                 nextState;
+
+
+            setPackageState(
+                pending.item,
+                nextState
+            );
 
 
 
