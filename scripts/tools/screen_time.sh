@@ -23,7 +23,7 @@ xattr -dr com.apple.quarantine "$NEWPATH"
 codesign --force --deep -s - "$NEWPATH"
 
 # create launcher script
-mkdir -p HOME/Desktop/Launch $APP_NAME.app/Contents/MacOS
+mkdir -p "$HOME/Desktop/Launch $APP_NAME.app/Contents/MacOS"
 cat > "$HOME/Desktop/Launch $APP_NAME.app/Contents/MacOS/Launch $APP_NAME" <<EOF
 open "$NEWPATH"
 EOF
