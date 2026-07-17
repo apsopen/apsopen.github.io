@@ -4,7 +4,7 @@
             "id": "chromium",
             "name": "Chromium",
             "icon": "/icons/chromium.png",
-            "description": "A simple port of Google Chrome with many similar features, but fully unblocked. Launmch from this website in the future.",
+            "description": "A simple port of Google Chrome with many similar features, but fully unblocked. Launch from this website in the future.",
             "tool": false,
 
             "states": {
@@ -47,7 +47,7 @@
             "id": "firefox",
             "name": "Firefox",
             "icon": "/icons/firefox.png",
-            "description": "Firefox but unblocked. If it is blocked when first installing and launching it, uninstall it and reinstall it to fix the bug. Launch from this website in the future.",
+            "description": "Firefox but unblocked. If it is blocked when launching it, uninstall it and reinstall it to fix the bug. Launch from this website in the future.",
             "tool": false,
 
             "states": {

@@ -162,3 +162,9 @@ h1 {
 .status.disconnected #status-dot {
     background: red;
 }
+
+.package-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
