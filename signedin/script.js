@@ -316,21 +316,34 @@ async function startStatusMonitor() {
                 );
 
 
-            if (
-                data.status !== "finished"
-                ||
-                !data.success
-            ) {
+            if (data.status !== "finished") {
                 return;
             }
 
 
-
-            const pending =
-                pendingActions[data.package];
+            const pending = pendingActions[data.package];
 
 
             if (!pending) {
+                return;
+            }
+
+
+            if (!data.success) {
+
+                alert(
+                    `${pending.item.name} ${pending.action.text} failed`
+                );
+
+
+                renderActions(
+                    pending.card,
+                    pending.item
+                );
+
+
+                delete pendingActions[data.package];
+
                 return;
             }
 
