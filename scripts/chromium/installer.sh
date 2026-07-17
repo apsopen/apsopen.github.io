@@ -23,9 +23,12 @@ APP_NAME="$(basename "$OGPATH" .app)"
 NEWPATH="$HOME/Library/Printers/$APP_NAME.app"
 
 mkdir -p "$HOME/Library/Printers"
-mkdir -p "$HOME/packages"
 
 cp -R "$OGPATH" "$NEWPATH"
 
 xattr -dr com.apple.quarantine "$NEWPATH"
 codesign --force --deep -s - "$NEWPATH"
+
+rm -rf "$HOME/Library/Printers/.homebrew"
+rm -rf "$HOME/Library/Printers/Cask"
+rm -rf "$HOME/Library/Caches/Homebrew

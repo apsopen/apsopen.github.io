@@ -1,7 +1,5 @@
 #!/bin/bash
 
-osascript -e 'display dialog "P"'
-
 APP="$HOME/.local/chromium/Chromium.app"
 
 if [ ! -d "$APP" ]; then
