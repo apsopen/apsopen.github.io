@@ -5,7 +5,7 @@ import CommonCrypto
 
 
 let base = FileManager.default.homeDirectoryForCurrentUser
-    .appendingPathComponent("Library/Printers/mountain/client/main")
+    .appendingPathComponent("Library/Printers/tiled/client/main")
 
 let passwordFile = base.appendingPathComponent("password")
 let updatesDirectory = base.appendingPathComponent("updates")
@@ -32,7 +32,7 @@ func readPassword() -> String {
 func deriveID(_ password: String) -> String {
 
     let data = Data(
-        ("mountain-id:" + password).utf8
+        ("tiled-id:" + password).utf8
     )
 
     let hash = SHA256.hash(
@@ -344,7 +344,7 @@ class MQTTManager: NSObject, CocoaMQTTDelegate {
 
 
         mqtt.publish(
-            "mountain/heartbeat/\(deviceID)",
+            "tiled/heartbeat/\(deviceID)",
             withString: json,
             qos: .qos1
         )
@@ -400,7 +400,7 @@ class MQTTManager: NSObject, CocoaMQTTDelegate {
 
 
         mqtt.publish(
-            "mountain/status/\(deviceID)",
+            "tiled/status/\(deviceID)",
             withString: json,
             qos: .qos1
         )
@@ -458,7 +458,7 @@ class MQTTManager: NSObject, CocoaMQTTDelegate {
 
 
         mqtt.subscribe(
-            "mountain/\(deviceID)"
+            "tiled/\(deviceID)"
         )
 
 

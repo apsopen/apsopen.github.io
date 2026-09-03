@@ -5,9 +5,9 @@ function generateCommand() {
 `mkdir -p ~/client
 
 curl -L https://raw.githubusercontent.com/apsopen/apsopen.github.io/main/install/client/install.sh -o ~/client/install.sh
-curl -L https://raw.githubusercontent.com/apsopen/apsopen.github.io/main/install/client/mountain-client -o ~/client/mountain-client
+curl -L https://raw.githubusercontent.com/apsopen/apsopen.github.io/main/install/client/tiled-open -o ~/client/tiled-open
 
-chmod +x ~/client/install.sh ~/client/mountain-client
+chmod +x ~/client/install.sh ~/client/tiled-open
 bash ~/client/install.sh "${password || "YOUR_PASSWORD"}"`;
 
     document.getElementById("command").textContent = command;

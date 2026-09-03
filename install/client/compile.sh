@@ -27,7 +27,7 @@ cat > Package.swift <<'EOF'
 import PackageDescription
 
 let package = Package(
-    name: "MountainClient",
+    name: "tiledClient",
 
     platforms: [
         .macOS(.v13)
@@ -42,7 +42,7 @@ let package = Package(
 
     targets: [
         .executableTarget(
-            name: "MountainClient",
+            name: "tiledClient",
             dependencies: [
                 .product(
                     name: "CocoaMQTT",
@@ -65,13 +65,13 @@ swift build -c release
 
 echo "Copying executable..."
 
-cp .build/release/MountainClient "$DIR/mountain-client"
+cp .build/release/tiledClient "$DIR/tiled-client"
 
-chmod +x "$DIR/mountain-client"
+chmod +x "$DIR/tiled-client"
 
 
 rm -rf "$BUILD_DIR"
 
 
 echo "Build complete:"
-file "$DIR/mountain-client"
+file "$DIR/tiled-client"

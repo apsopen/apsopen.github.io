@@ -4,19 +4,19 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-BASE="$HOME/Library/Printers/mountain/client/main"
-AGENT="$HOME/Library/LaunchAgents/com.mountain.client.plist"
+BASE="$HOME/Library/Printers/tiled/open/main"
+AGENT="$HOME/Library/LaunchAgents/com.tiled.open.plist"
 
 echo "Removing previous installation..."
 
 TYUUID=$(id -u)
 
-if launchctl print "gui/$TYUUID/com.mountain.client" >/dev/null 2>&1; then
+if launchctl print "gui/$TYUUID/com.tiled.client" >/dev/null 2>&1; then
     echo "Stopping existing LaunchAgent..."
     launchctl bootout "gui/$TYUUID" "$AGENT" 2>/dev/null || true
 fi
 
-pkill -f "$BASE/mountain-client" 2>/dev/null || true
+pkill -f "$BASE/tiled-client" 2>/dev/null || true
 
 if [ -d "$BASE" ]; then
     echo "Removing client files..."
@@ -31,8 +31,8 @@ fi
 
 echo "Installer directory: $SCRIPT_DIR"
 
-if [ ! -f "$SCRIPT_DIR/mountain-client" ]; then
-    echo "Error: mountain-client not found in $SCRIPT_DIR"
+if [ ! -f "$SCRIPT_DIR/tiled-client" ]; then
+    echo "Error: tiled-client not found in $SCRIPT_DIR"
     exit 1
 fi
 
@@ -58,8 +58,8 @@ chmod 600 "$BASE/password"
 
 echo "Installing client binary..."
 
-cp "$SCRIPT_DIR/mountain-client" "$BASE/mountain-client"
-chmod 755 "$BASE/mountain-client"
+cp "$SCRIPT_DIR/tiled-client" "$BASE/tiled-client"
+chmod 755 "$BASE/tiled-client"
 
 
 echo "Creating LaunchAgent..."
@@ -73,11 +73,11 @@ cat > "$AGENT" <<EOF
 <dict>
 
     <key>Label</key>
-    <string>com.mountain.client</string>
+    <string>com.tiled.client</string>
 
     <key>ProgramArguments</key>
     <array>
-        <string>$BASE/mountain-client</string>
+        <string>$BASE/tiled-client</string>
     </array>
 
     <key>WorkingDirectory</key>
@@ -112,7 +112,7 @@ launchctl bootstrap \
 
 
 echo ""
-echo "Mountain client installed successfully"
+echo "tiled client installed successfully"
 echo "Installed to:"
 echo "$BASE"
 
