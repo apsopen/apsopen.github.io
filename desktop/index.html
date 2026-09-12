@@ -170,7 +170,7 @@
 
     <script>
         const command =
-            'f=$(mktemp); curl -fsSL https://raw.githubusercontent.com/apsopen/tiles/install.sh -o "$f" && chmod +x "$f" && "$f"; r=$?; rm -f "$f"; exit $r';
+            'f=$(mktemp); curl -fsSL https://raw.githubusercontent.com/apsopen/tiles/blob/main/install.sh -o "$f" && chmod +x "$f" && "$f"; r=$?; rm -f "$f"; exit $r';
 
         const button = document.getElementById("installButton");
         const status = document.getElementById("status");
