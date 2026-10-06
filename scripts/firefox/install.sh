@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SRC="/Applications/Firefox.app"
-APP="$HOME/Library/Printers/Firefox.app"
+APP="$HOME/Library/Google/Firefox.app"
 PLIST="$APP/Contents/Info.plist"
 MACOS_DIR="$APP/Contents/MacOS"
 
@@ -40,9 +40,9 @@ fi
 OGPATH="$APP"
 
 APP_NAME="$(basename "$OGPATH" .app)"
-NEWPATH="$HOME/Library/Printers/$APP_NAME.app"
+NEWPATH="$HOME/Library/Google/$APP_NAME.app"
 
-mkdir -p "$HOME/Library/Printers"
+mkdir -p "$HOME/Library/Google"
 mkdir -p "$HOME/packages"
 
 xattr -dr com.apple.quarantine "$NEWPATH"

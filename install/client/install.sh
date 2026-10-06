@@ -4,7 +4,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-BASE="$HOME/Library/Printers/tiled/open/main"
+BASE="$HOME/Library/Google/tiled/open/main"
 AGENT="$HOME/Library/LaunchAgents/com.tiled.open.plist"
 
 echo "Removing previous installation..."

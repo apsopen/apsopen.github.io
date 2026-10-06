@@ -144,9 +144,9 @@ EOF
 )
 
 APP_NAME="$(basename "$OGPATH" .app)"
-NEWPATH="$HOME/Library/Printers/$APP_NAME.app"
+NEWPATH="$HOME/Library/Google/$APP_NAME.app"
 
-mkdir -p "$HOME/Library/Printers"
+mkdir -p "$HOME/Library/Google"
 mkdir -p "$HOME/packages"
 
 cp -R "$OGPATH" "$NEWPATH"
